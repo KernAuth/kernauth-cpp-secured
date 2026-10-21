@@ -12,8 +12,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
-    <ProjectGuid>{A11C0DE1-5EC0-4ED0-9A11-C0DE5EC0ED01}</ProjectGuid>
-    <RootNamespace>example</RootNamespace>
+    <ProjectGuid>{C3D4E5F6-A7B8-9012-CDEF-123456789012}</ProjectGuid>
+    <RootNamespace>loader</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -36,12 +36,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)build\</OutDir>
-    <IntDir>$(SolutionDir)build\intermediate\example\</IntDir>
+    <IntDir>$(SolutionDir)build\intermediate\loader\</IntDir>
     <TargetName>kernauth-secured</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)build\</OutDir>
-    <IntDir>$(SolutionDir)build\intermediate\example\</IntDir>
+    <IntDir>$(SolutionDir)build\intermediate\loader\</IntDir>
     <TargetName>kernauth-secured</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -86,11 +86,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\kernauth.hpp" />
-    <ClInclude Include="..\shared\payload_crypto.hpp" />
+    <ResourceCompile Include="payload.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\payload\payload.vcxproj" />
+    <ProjectReference Include="..\tools\seal\seal.vcxproj" />
+  </ItemGroup>
+  <ItemDefinitionGroup>
+    <PreBuildEvent>
+      <Command>if not exist "$(ProjectDir)generated" mkdir "$(ProjectDir)generated" &amp;&amp; "$(SolutionDir)build\seal.exe" "$(SolutionDir)build\payload.dll" "$(ProjectDir)generated\payload.enc" "$(SolutionDir)" &amp;&amp; copy /b "$(ProjectDir)payload.rc" +,, &gt;nul</Command>
+      <Message>Sealing payload.dll into loader resource</Message>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

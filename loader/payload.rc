@@ -1,0 +1,2 @@
+#include "resource.h"
+IDR_PAYLOAD RCDATA "generated\\payload.enc"

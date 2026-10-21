@@ -1,54 +1,27 @@
 # KernAuth C++ secured example
 
-Payload-key flow: `initialize` → `validate` → `unwrap_payload`.
+Same shape as a product loader: **payload** DLL → **seal** → **loader** embeds and decrypts it after KernAuth auth.
 
-Open `KernAuth.sln` in Visual Studio 2022 (x64), paste your public app ID and public key into `src/main.cpp`, set a **Payload key** on the application in the dashboard, then build and run.
-
-Vendored **libsodium**, **libcurl**, and **nlohmann/json** live under `include/`. Static x64 libs are in `lib/`. vcpkg is not used.
-
-For a plain license check without a payload key, use [kernauth-cpp](https://github.com/KernAuth/kernauth-cpp).
-
-## Use
-
-```cpp
-#include "kernauth.hpp"
-
-kernauth::App app(
-    "https://api.kernauth.com",
-    "pub_your_app",
-    "your_public_key");
-
-if (!app.initialize().ok) {
-  return 1;
-}
-
-kernauth::ClientResult result = app.validate(license_key);
-if (!result.active) {
-  return 1;
-}
-
-kernauth::PayloadUnwrap unwrapped = app.unwrap_payload();
-if (!unwrapped.ok) {
-  return 1;
-}
-// unwrapped.payload_key is the dashboard Payload key string — wipe after use.
+```text
+KernAuth.sln
+loader/          auth + unwrap + load sealed DLL
+payload/         sample DLL (payload_run / payload_stop)
+tools/seal/      encrypts payload.dll with the dashboard Payload key
+shared/          payload_crypto.hpp + seal_key.example
+include/         KernAuth SDK + curl / sodium / nlohmann
+lib/             x64 static libs
 ```
 
-`shared/payload_crypto.hpp` shows how to turn that string into a file key (BLAKE2b) for sealing a DLL or resource.
+## Setup
 
-## Layout
+1. Set a **Payload key** on your app in the KernAuth dashboard.
+2. Copy `shared/seal_key.example` → `shared/seal_key.txt` and put that same key in the file (or set `KERN_PAYLOAD_KEY`).
+3. Paste public app ID and public key into `loader/main.cpp`.
+4. Open `KernAuth.sln` (x64), build. Pre-build runs `seal.exe` and embeds `loader/generated/payload.enc`.
+5. Run `build/kernauth-secured.exe` and type a license (`KERN_LICENSE_KEY` skips the prompt).
 
-| Path | What |
-| --- | --- |
-| `KernAuth.sln` | Visual Studio solution |
-| `example/` | Console project (links vendored libs) |
-| `include/` | KernAuth SDK + curl / sodium / nlohmann |
-| `lib/` | Static x64 libs |
-| `src/main.cpp` | Secured example |
-| `shared/payload_crypto.hpp` | Seal / open helpers |
+Flow: `initialize` → `validate` → `unwrap_payload` → decrypt resource → `LoadLibrary` → `payload_run`.
 
-Type the license at the prompt (`KERN_LICENSE_KEY` skips it).
-
-A modified program can still skip the local check. The server can still revoke the license and end the session.
+vcpkg is not used. A modified program can still skip the local check.
 
 Documentation: https://kernauth.apidog.io
