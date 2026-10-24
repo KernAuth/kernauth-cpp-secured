@@ -119,6 +119,8 @@ HMODULE write_and_load_dll(const std::vector<unsigned char>& bytes, std::wstring
 }  // namespace
 
 int main() {
+  // Leave the version off when Require this version is off.
+  // kernauth::App app(api, app_id, public_key, "1.0.0");
   kernauth::App app(
       "https://api.kernauth.com",
       "__PUBLIC_APP_ID__",

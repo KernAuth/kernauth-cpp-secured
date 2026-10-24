@@ -66,11 +66,18 @@ constexpr std::uint64_t build_seed() {
 
 class App {
  public:
-  App(std::string base_url, std::string public_app_id, std::string public_key_base64)
+  App(
+      std::string base_url,
+      std::string public_app_id,
+      std::string public_key_base64,
+      std::string client_version = {})
       : owned_(std::make_unique<CurlTransport>()), transport_(owned_.get()) {
     options_.base_url = std::move(base_url);
     options_.public_app_id = std::move(public_app_id);
     options_.public_key_base64 = std::move(public_key_base64);
+    if (!client_version.empty()) {
+      options_.client_version = std::move(client_version);
+    }
   }
 
   App(HttpTransport& transport, ClientOptions options)
