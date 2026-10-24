@@ -1,3 +1,0 @@
-# Copy to seal_key.txt (or set KERN_PAYLOAD_KEY).
-# Must match KernAuth dashboard → your app → Payload key.
-YourPayloadKeyHere
